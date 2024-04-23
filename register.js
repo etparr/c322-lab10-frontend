@@ -1,6 +1,13 @@
+const mode = 1;
 
+const host_local = "http://localhost:8080";
+const host_remote = "https://ducks-service-latest-1-j52s.onrender.com";
 
-async function signup() {
+function getHost() {
+    return (mode == 0) ? host_local : host_remote;
+}
+
+let configuration = {loggedIn: false, hosts: getHost(), token: ""};async function signup() {
     let email = document.getElementById("email").value;
     let username = document.getElementById("username").value;
     let password = document.getElementById("password").value;

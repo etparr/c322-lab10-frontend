@@ -14,7 +14,7 @@
       <li><a href="pond.html">Pond</a></li>
       <li class="right"><a  href="login.html">Login</a></li>
     </ul>
-    <labe>Type:</labe>
+    <label>Type:</label>
     <input id="type" />
     <button onclick="search()">Search</button>
     <br />
@@ -27,21 +27,28 @@
       </thead>
       <tbody id="result"></tbody>
     </table>
-    <script src = "configuration.js"> </script>
 
+    <script src="configuration.js"></script>
     <script>
       let ducks = [];
 
       async function getAll() {
-        let host = getHost();
-        return fetch(host + "/ducks")
-          .then((response) => response.json())
-          .catch((error) => {
+    let host = getHost();
+    const headers = { 'Authorization': 'Bearer ' + configuration.token() }; 
+    let response = await fetch(host + "/ducks", {headers})
+        .then((response) => {
+            if(response.status === 401) {
+                logout();
+            }
+            return response.json();
+        })
+        .catch((error) => {
             console.log(error);
             alert("Something went wrong!");
             return [];
-          });
-      }
+        });
+    return response;
+}
 
       async function search() {
         if (ducks.length == 0) {

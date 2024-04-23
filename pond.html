@@ -1,65 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="navbar.css">
     <link rel="stylesheet" href="pond.css">
-    <title>The pond</title>    
-  </head>
-  <body>
+    <title>The Pond</title>
+</head>
+<body>
     <ul class="topnav">
-      <li><a class="active" href="index.html">Home</a></li>
-      <li><a href="add.html">Add ducks</a></li>        
-      <li><a href="search.html">Search ducks</a></li>
-      <li><a href="pond.html">Pond</a></li>
-      <li class="right"><a  href="login.html">Login</a></li>
+        <li><a class="active" href="index.html">Home</a></li>
+        <li><a href="add.html">Add ducks</a></li>
+        <li><a href="search.html">Search ducks</a></li>
+        <li><a href="pond.html">Pond</a></li>
+        <li class="right"><a href="login.html">Login</a></li>
     </ul>
 
     <div id="pond"></div>
-    <script src = "configuration.js"> </script>
-
+    <script src="configuration.js"></script>
     <script>
-      let host = getHost();
-      let ducks = [];
-      displayTheDucks();
+        let host = getHost();
+        let ducks = [];
+        displayTheDucks();
 
-      async function getAll() {
-        let response = await fetch(host + "/ducks");
-        let result = await response.json();
-        return result;
-      }
-
-      async function displayTheDucks() {
-        if (ducks.length == 0) {
-          ducks = await getAll();
+        async function getAll() {
+            const headers = {'Authorization': `Bearer ${configuration.token()}` };
+            let response = await fetch(host + "/ducks", { headers });
+            if(response.status === 401) {
+                logout();
+            }
+            let result = await response.json();
+            return result;
         }
 
-        let pond = document.getElementById("pond");
-        pond.innerHTML = "";
+        async function displayTheDucks() {
+    if (ducks.length === 0) {
+        ducks = await getAll();
+    }
 
-        for (let duck of ducks) {
-          let div = document.createElement("div");
-          div.className = "flip-card";
-          let innerHtml = `
+    let pond = document.getElementById("pond");
+    pond.innerHTML = "";
+
+    for (let duck of ducks) {
+        let div = document.createElement("div");
+        div.className = "flip-card";
+        
+        const imageURL = `${host}/ducks/${duck.id}/image`;
+        const imageResponse = await fetch(imageURL, {
+            headers: {'Authorization': `Bearer ${configuration.token()}`}
+        });
+        const imageBlob = await imageResponse.blob();
+        const imageSrc = URL.createObjectURL(imageBlob);
+        
+        let innerHtml = `
             <div class="flip-card-inner">
-              <div class="flip-card-front">
-               <img
-                   src="${host}/ducks/${duck.id}/image"
-                   alt="Duck"
-                   style="width: 100%"
-                />
-              </div>
-              <div class="flip-card-back">
-                <h1>${duck.name}</h1>
-                <p>${duck.type}</p>
-               </div>
+                <div class="flip-card-front">
+                    <img
+                        src="${imageSrc}"
+                        alt="Duck"
+                        style="width: 100%"
+                    />
+                </div>
+                <div class="flip-card-back">
+                    <h1>${duck.name}</h1>
+                    <p>${duck.type}</p>
+                </div>
             </div>
-            `;
-          div.innerHTML = innerHtml;
-          pond.appendChild(div);
-        }
-      }
+        `;
+        div.innerHTML = innerHtml;
+        pond.appendChild(div);
+    }
+}
+
     </script>
-  </body>
+</body>
 </html>

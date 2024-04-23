@@ -17,9 +17,10 @@
     </ul>
 
     <div id="pond"></div>
+    <script src = "configuration.js"> </script>
 
     <script>
-      let host = "http://localhost:8080";
+      let host = getHost();
       let ducks = [];
       displayTheDucks();
 
